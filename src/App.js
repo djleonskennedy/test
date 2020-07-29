@@ -1,63 +1,48 @@
 import React, {Component} from 'react';
-import Clock from './clock';
+import Clock from './Clock';
 
 export default class App extends Component {
+
+    clocksRef = new Map();
+    clockIds = [1, 2, 3];
+
     state = {
         selectedClock: 1,
-        clocks: [
-            {
-                id: 1,
-                name: 'clock1',
-                test: false
-            },
-            {
-                id: 2,
-                name: 'clock2',
-                test: false
-            }
-        ],
+    }
 
+    get currentClock() {
+        return this.clocksRef.get(this.state.selectedClock);
     }
 
     selectClock(value) {
         this.setState({
-            selectedClock: +value
+            selectedClock: parseInt(value, 10)
         })
     }
 
-    controlTime(stop = false) {
-        const item = this.state.clocks.find(({id}) => id === this.state.selectedClock)
-        const itemIndex = this.state.clocks.findIndex(({id}) => id === item.id)
-        let newClocks = this.state.clocks;
-        console.log(itemIndex)
-        newClocks[itemIndex].test = stop ? true : false;
-        this.setState({
-            clocks: newClocks
-        })
+    play() {
+        this.currentClock.play()
+    }
 
+    stop() {
+        this.currentClock.stop()
     }
 
     render() {
         return (
             <div>
-                <button onClick={() => this.controlTime(true)}>stop</button>
-                <button onClick={() => this.controlTime()}>start</button>
-                <select onChange={event => this.selectClock(+event.target.value)}>
+                <button onClick={() => this.stop()}>stop</button>
+                <button onClick={() => this.play()}>start</button>
+                <select onChange={event => this.selectClock(event.target.value)}>
                     {
-                        this.state.clocks.map(({name, id}) => {
-                            return <option value={id} key={id}> {name}</option>
-                        })
+                        this.clockIds.map((id) =>
+                            <option value={id} key={id}> {`Clock ${id}`}</option>)
                     }
                 </select>
                 <div>
                     {
-                        this.state.clocks.map(({id, test}) => {
-                            return (
-                                <div key={id}>
-                                    <Clock test={test}/>
-                                </div>
-                            )
-                        })
+                        this.clockIds.map((id) =>
+                            <Clock key={id} ref={(ref) => this.clocksRef.set(id, ref)}/>)
                     }
                 </div>
             </div>
